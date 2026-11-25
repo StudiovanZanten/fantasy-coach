@@ -69,3 +69,12 @@ export function upcomingRounds(idx: DatasetIndex, fromRoundId: string, horizon: 
   if (start < 0) return [];
   return sorted.slice(start, start + horizon).map((r) => r.id);
 }
+
+/** Eerstvolgende ronde met een open deadline (voor wijzigingen) en de ronde die nu live is. */
+export function roundForNow(idx: DatasetIndex, now: Date): { next?: string; live?: string; lastPast?: string } {
+  const sorted = [...idx.ds.rounds].sort((a, b) => a.deadline.localeCompare(b.deadline));
+  const next = sorted.find((r) => new Date(r.deadline) > now && r.status !== "past");
+  const live = [...sorted].reverse().find((r) => new Date(r.deadline) <= now && r.status !== "past");
+  const lastPast = [...sorted].reverse().find((r) => r.status === "past");
+  return { next: next?.id, live: live?.id, lastPast: lastPast?.id };
+}
