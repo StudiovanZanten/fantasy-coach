@@ -40,9 +40,12 @@ export interface LineupCheckResult {
 const NOT_STARTING: LineupStatus[] = ["BANK", "AFWEZIG"];
 const numbers = ["nul", "één", "twee", "drie", "vier", "vijf", "zes", "zeven", "acht", "negen", "tien", "elf"];
 
-export function checkLineup(ctx: RecommendContext, roundId: string, playerIds: string[], captainId?: string): LineupCheckResult {
+export function checkLineup(ctx: RecommendContext, roundId: string, inputIds: string[], captainId?: string): LineupCheckResult {
   const { idx, rules, now } = ctx;
-  const round = idx.rounds.get(roundId)!;
+  const round = idx.rounds.get(roundId);
+  if (!round) throw new Error(`Onbekende ronde ${roundId}`);
+  // Onbekende ids (bijv. uit een oude opslag) negeren in plaats van te laten crashen.
+  const playerIds = inputIds.filter((id) => idx.players.has(id));
   const proj = projectRound(ctx, roundId);
   const fixtures = roundFixtures(idx, roundId, ctx.overrides);
   const started = (fixtureId?: string) => {

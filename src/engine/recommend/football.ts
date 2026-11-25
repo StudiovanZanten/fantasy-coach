@@ -47,8 +47,9 @@ export function projectRound(ctx: RecommendContext, roundId: string, prefs: Pref
             prefs,
             predicted: pred && rotation ? { ...pred, startProb: pred.startProb * 0.7 } : pred,
             rotationRisk: rotation,
-            confirmed: lineup?.players[player.id] ?? (lineup ? "absent" : undefined),
-            lineupPublished: Boolean(lineup),
+            // Niet-geverifieerde (eigen) spelers staan niet in de bronopstelling: dan blijft hun status onbekend.
+            confirmed: lineup?.players[player.id] ?? (lineup && player.identityVerified !== false ? "absent" : undefined),
+            lineupPublished: Boolean(lineup) && (lineup?.players[player.id] !== undefined || player.identityVerified !== false),
             isMatchOfTheRound: rules.matchOfTheRound.enabled && round.matchOfTheRoundFixtureId === f.id,
             matchOfTheRoundMultiplier: rules.matchOfTheRound.bonusMultiplier,
             ruleExclusion: rules.usage.oncePerPhase && used.has(player.id) ? "Al eerder gebruikt" : undefined,
